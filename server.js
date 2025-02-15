@@ -9,6 +9,8 @@ const app = express();
 
 connectDB();
 
+app.use(express.json());
+
 // Importing Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
