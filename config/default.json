@@ -1,0 +1,3 @@
+{
+    "mongoURI" : "mongodb+srv://kirtan:kirtan@devconnectorcluster.bymef.mongodb.net/?retryWrites=true&w=majority&appName=DevConnectorCluster"
+}
