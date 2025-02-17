@@ -3,6 +3,7 @@ import Profile from "../../models/Profile.js";
 import User from "../../models/User.js";
 import auth from "../../middleware/auth.js";
 import { check, validationResult } from "express-validator";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -121,8 +122,65 @@ router.get("/", async (req, res) => {
   }
 });
 
-// @api /api/profile/user/:user_id
+// @api GET /api/profile/user/:user_id
 // @desc get profile by User id
 // @access private
+router.get("/user/:user_id", auth, async (req, res) => {
+  const userId = req.params.user_id;
+
+  // ---> this same is replicated in the catch block by identifying th error kind and returning accordingly.
+  // if (!mongoose.Types.ObjectId.isValid(userId)) {
+  //   return res
+  //     .status(400)
+  //     .json({ msg: "No user profile found for this user id." });
+  // }
+
+  try {
+    const profile = await Profile.findOne({ user: userId }).populate("user", [
+      "name",
+      "avatar",
+    ]);
+
+    if (!profile) {
+      return res
+        .status(400)
+        .json({ msg: "No user profile found for this user id." });
+    }
+
+    res.status(200).json(profile);
+  } catch (error) {
+    console.log(error);
+    if ((error.kind = "ObjectId")) {
+      return res
+        .status(400)
+        .json({ msg: "No user profile found for this user id." });
+    }
+    return res.status(500).json({ msg: "Internal Server" });
+  }
+});
+
+// @api DELETE /api/profile
+// @desc delete user profile,user and posts
+// @access private
+router.delete("/", auth, async (req, res) => {
+  const userId = req.user.id;
+
+  try {
+    // delete profile, user and posts
+
+    // Delete Profile
+    await Profile.findOneAndDelete({ user: userId });
+
+    // Delete User
+    await User.findOneAndDelete({ _id: userId });
+
+    // todo : Delete Posts
+
+    res.status(200).json({ msg: "User deleted successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json("Internal Server Error");
+  }
+});
 
 export default router;
