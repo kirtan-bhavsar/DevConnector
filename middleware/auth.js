@@ -20,7 +20,9 @@ const auth = (req, res, next) => {
     }
 
     if (!token) {
-      return res.statu(400).json("No token found, authorization failed !!");
+      return res
+        .status(400)
+        .json({ msg: "No token found, authorization failed !!" });
     }
 
     const decoded = jwt.verify(token, config.get("jwtSecret"));
