@@ -183,4 +183,180 @@ router.delete("/", auth, async (req, res) => {
   }
 });
 
+// @api PUT /api/profile/experience
+// @desc add experience to a profile
+// @access private
+router.put(
+  "/experience",
+  [
+    auth,
+    check(
+      check("title", "Title is compulsory").not().isEmpty(),
+      check("company", "Company is compulsory").not().isEmpty(),
+      check("from", "From date is compulsory").not().isEmpty()
+    ),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const userId = req.user.id;
+
+    const { title, company, location, from, to, current, description } =
+      req.body;
+
+    const newExp = {
+      title,
+      company,
+      location,
+      from,
+      to,
+      current,
+      description,
+    };
+
+    try {
+      const profile = await Profile.findOne({ user: userId });
+
+      if (!profile) {
+        return res.status(400).json({ msg: "No user found for this id." });
+      }
+
+      // this line adds a new experience to the user profile
+      profile.experience.unshift(newExp);
+
+      await profile.save();
+
+      res.status(200).json(profile);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ msg: "Internal Server Error" });
+    }
+  }
+);
+
+// @api DELETE /api/profile/experience/:experience_id
+// @desc delete experience for a user profile
+// @access private
+router.delete("/experience/:experience_id", auth, async (req, res) => {
+  const userId = req.user.id;
+
+  const profile = await Profile.findOne({ user: userId });
+
+  const experienceId = req.params.experience_id;
+
+  if (!profile) {
+    return res.status(400).json({ msg: "No profile found for this suer" });
+  }
+
+  if (!experienceId) {
+    return res.status(400).json({ msg: "Please provide valid experience Id" });
+  }
+
+  try {
+    // console.log(profile.experience);
+
+    profile.experience = profile.experience.filter(
+      (exp) => exp._id.toString() !== experienceId
+    );
+
+    await profile.save();
+
+    res.status(200).json(profile);
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
+// @api PUT /api/profile/education
+// @desc add education for a user profile
+// @access private
+router.put(
+  "/education",
+  [
+    auth,
+    check([
+      check("school", "School is compulsary").not().isEmpty(),
+      check("degree", "Degree is compulsary").not().isEmpty(),
+      check("fieldofstudy", "fieldofstudy is compulsary").not().isEmpty(),
+      check("from", "From is compulsary").not().isEmpty(),
+    ]),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.arrary() });
+    }
+
+    try {
+      const { school, degree, fieldofstudy, from, to, current, description } =
+        req.body;
+
+      const newEdu = {
+        school,
+        degree,
+        fieldofstudy,
+        from,
+        to,
+        current,
+        description,
+      };
+
+      const userId = req.user.id;
+
+      const profile = await Profile.findOne({ user: userId });
+
+      profile.education.unshift(newEdu);
+
+      await profile.save();
+
+      res.status(200).json(profile);
+    } catch (error) {
+      console.log(error);
+      return res.status(500).json({ msg: "Internal Server Error" });
+    }
+  }
+);
+
+// @api DELETE /api/profile/education/:education_id
+// @desc delete education for user profile
+// @access private
+router.delete("/education/:education_id", auth, async (req, res) => {
+  const userId = req.user.id;
+
+  if (!userId) {
+    return res.status(400).json({ msg: "Please pass a valid UserId" });
+  }
+
+  const educationId = req.params.education_id;
+
+  if (!educationId) {
+    return res.status(400).json({ msg: "Please pass a valid education Id" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(educationId)) {
+    return res.status(400).json({ msg: "Please pass a valid education Id" });
+  }
+
+  try {
+    const profile = await Profile.findOne({ user: userId });
+
+    profile.education = profile.education.filter(
+      (educationEntry) => educationEntry._id.toString() !== educationId
+    );
+
+    await profile.save();
+
+    res.status(200).json(profile);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
 export default router;
