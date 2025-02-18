@@ -1,9 +1,10 @@
-import express from "express";
+import express, { response } from "express";
 import Profile from "../../models/Profile.js";
 import User from "../../models/User.js";
 import auth from "../../middleware/auth.js";
 import { check, validationResult } from "express-validator";
 import mongoose from "mongoose";
+import axios from "axios";
 
 const router = express.Router();
 
@@ -355,6 +356,51 @@ router.delete("/education/:education_id", auth, async (req, res) => {
     res.status(200).json(profile);
   } catch (error) {
     console.log(error);
+    res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
+// @api GET /api/profile/user/github/:githubusername
+// @desc get 5 most recent github repositories using the GITHUB developer APIs
+// @access public
+router.get("/github/:githubusername", async (req, res) => {
+  const githubUserName = req.params.githubusername;
+
+  try {
+    const response = await axios.get(
+      `https://api.github.com/users/${githubUserName}/repos`,
+      {
+        params: {
+          per_page: 5,
+          sort: "created",
+          direction: "desc",
+        },
+        headers: {
+          Accept: "application/vnd.github.v3+json",
+        },
+      }
+    );
+
+    // const status = response.status;
+
+    // console.log(status + " this is status");
+
+    // if (status !== 200) {
+    //   return res.status(500).json({ msg: "Interanl Server Error" });
+    // }
+
+    const repositories = response.data;
+    // const repositories = response.data.repositories;
+
+    console.log(response.status + " this is response status code");
+
+    res.status(200).json(repositories);
+  } catch (error) {
+    if (error.status === 404) {
+      return res
+        .status(404)
+        .json({ msg: "No github profile found for this user" });
+    }
     res.status(500).json({ msg: "Internal Server Error" });
   }
 });
