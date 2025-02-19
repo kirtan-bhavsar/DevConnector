@@ -10,6 +10,9 @@ import config from "config";
 
 const router = express.Router();
 
+// @api GET /api/auth
+// @desc get user with the auth token
+// @access private
 router.get("/", auth, async (req, res) => {
   const userId = req.user.id;
 
@@ -23,7 +26,6 @@ router.get("/", auth, async (req, res) => {
 // @access : public
 router.post(
   "/",
-  auth,
   [
     check("email", "Please enter a valid email ID").isEmail(),
     check(
@@ -37,11 +39,9 @@ router.post(
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const authUserId = req.user.id;
+    const { email, password } = req.body;
 
-    const authUser = await User.findById(authUserId);
-
-    const { name, email, password } = req.body;
+    // const authUser = await User.findOne({email});
 
     try {
       // Make sure there is not user with the same credentials
@@ -52,12 +52,6 @@ router.post(
         return res
           .status(400)
           .json({ errors: [{ msg: "Invalid Credentials" }] });
-      }
-
-      if (!(authUser.email === userExists.email)) {
-        return res.status(400).json({
-          msg: "Incorrect credentials which means that email is incorrect",
-        });
       }
 
       const matchPassword = await bcrypt.compare(password, userExists.password);
