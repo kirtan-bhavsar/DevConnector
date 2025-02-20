@@ -135,10 +135,10 @@ router.delete("/:post_id", auth, async (req, res) => {
   }
 });
 
-// @api PUT /api/posts/like/:post_id
+// @api PUT /api/posts/test-like/:post_id
 // @desc api to like/not-like a post
 // @access private
-router.put("/like/:post_id", auth, async (req, res) => {
+router.put("/test-like/:post_id", auth, async (req, res) => {
   const postId = req.params.post_id;
 
   if (!postId) {
@@ -190,9 +190,9 @@ router.put("/like/:post_id", auth, async (req, res) => {
 });
 
 // @api PUT /api/posts/test-like/:post_id
-// @desc api to like/not-like a post
+// @desc api to like a post
 // @access private
-router.put("/test-like/:post_id", auth, async (req, res) => {
+router.put("/like/:post_id", auth, async (req, res) => {
   const postId = req.params.post_id;
 
   if (!postId) {
@@ -236,7 +236,7 @@ router.put("/test-like/:post_id", auth, async (req, res) => {
 // @api PUT /api/posts/test-unlike/:post_id
 // @desc api to unlike a post
 // @access private
-router.put("/test-unlike/:post_id", auth, async (req, res) => {
+router.put("/unlike/:post_id", auth, async (req, res) => {
   const postId = req.params.post_id;
 
   if (!postId) {
@@ -282,6 +282,134 @@ router.put("/test-unlike/:post_id", auth, async (req, res) => {
   } catch (error) {
     console.log(error.message);
     res.status(400).json({ msg: "Internal Server Error" });
+  }
+});
+
+// @api PUT /api/posts/comments/:post_id
+// @desc api to add a post comment
+// @access private
+router.put("/comments/:post_id", auth, async (req, res) => {
+  const postId = req.params.post_id;
+
+  if (!postId) {
+    return res.status(400).json({ msg: "Post id not found" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    return res.status(404).json({ msg: "Please pass a valid post id" });
+  }
+
+  const userId = req.user.id;
+
+  if (!userId) {
+    return res.status(400).json({ msg: "No user found" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(404).json({ msg: "Please provide a valid user Id" });
+  }
+
+  const user = await User.findById(userId);
+
+  if (!user) {
+    return res.status(400).json({ msg: "No user found for this id" });
+  }
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res
+        .status(400)
+        .json({ msg: "No post found for the provided post id" });
+    }
+
+    let { text } = req.body;
+
+    text = text.trim();
+
+    if (!text || !text.trim()) {
+      return res.status(400).json({ msg: "Comment text cannot be blank" });
+    }
+
+    const comment = {
+      text,
+      user: userId,
+      avatar: user.avatar,
+    };
+
+    post.comments.unshift(comment);
+
+    await post.save();
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ msg: "Internal Server Error" });
+  }
+});
+
+// @api DELETE /api/posts/comments/:post_id/:comment_id
+// @desc delete a comment by only that user
+// @access private
+router.delete("/comments/:post_id/:comment_id", auth, async (req, res) => {
+  const commentId = req.params.comment_id;
+
+  if (!commentId) {
+    return res.status(400).json({ msg: "Post id not found" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(commentId)) {
+    return res.status(404).json({ msg: "Please pass a valid post id" });
+  }
+
+  const postId = req.params.post_id;
+
+  if (!postId) {
+    return res.status(400).json({ msg: "Post id not found" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(postId)) {
+    return res.status(404).json({ msg: "Please pass a valid post id" });
+  }
+
+  const userId = req.user.id;
+
+  if (!userId) {
+    return res.status(400).json({ msg: "No user found" });
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(userId)) {
+    return res.status(404).json({ msg: "Please provide a valid user Id" });
+  }
+
+  try {
+    const post = await Post.findById(postId);
+
+    if (!post) {
+      return res.status(400).json({ msg: "No post found for the user id" });
+    }
+
+    const removeIndex = post.comments.findIndex(
+      (comment) => comment._id.toString() === commentId
+    );
+
+    if (removeIndex === -1) {
+      return res
+        .status(400)
+        .json({ msg: "No comment found matching the comment Id" });
+    }
+
+    if (post.comments[removeIndex].user.toString() === userId) {
+      post.comments.splice(removeIndex, 1);
+    }
+
+    await post.save();
+
+    res.status(200).json(post);
+  } catch (error) {
+    console.log(error.message);
+    return res.status(500).json({ msg: "Internal Server Error" });
   }
 });
 
