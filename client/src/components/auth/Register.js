@@ -1,10 +1,12 @@
 import React from "react";
 import { useState } from "react";
-import axios from "axios";
 import { Link } from "react-router-dom";
+import { connect } from "react-redux";
+import { setAlert } from "../../actions/alert";
+import PropTypes from "prop-types";
 
 // Defining the state for Register Functionality
-const Register = () => {
+const Register = ({ setAlert }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -45,7 +47,7 @@ const Register = () => {
 
       console.log("SUCCESS");
     } else {
-      console.log("password does not matches");
+      setAlert("Password does not matches", "danger", 2500);
     }
   };
 
@@ -111,4 +113,8 @@ const Register = () => {
   );
 };
 
-export default Register;
+Register.propTypes = {
+  setAlert: PropTypes.func.isRequired,
+};
+
+export default connect(null, { setAlert })(Register);
