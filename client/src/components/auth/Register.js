@@ -2,11 +2,12 @@ import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { connect } from "react-redux";
-import { setAlert } from "../../actions/alert";
+import { setAlert } from "../../actions/alertAction.js";
+import { register } from "../../actions/authAction.js";
 import PropTypes from "prop-types";
 
 // Defining the state for Register Functionality
-const Register = ({ setAlert }) => {
+const Register = ({ setAlert, register }) => {
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -45,7 +46,9 @@ const Register = ({ setAlert }) => {
       //   console.log(error.message);
       // }
 
-      console.log("SUCCESS");
+      // console.log("SUCCESS");
+
+      register({ name, email, password });
     } else {
       setAlert("Password does not matches", "danger", 2500);
     }
@@ -63,7 +66,6 @@ const Register = ({ setAlert }) => {
             type="text"
             placeholder="Name"
             name="name"
-            required
             value={name}
             onChange={(e) => onChange(e)}
           />
@@ -73,7 +75,6 @@ const Register = ({ setAlert }) => {
             type="email"
             placeholder="Email Address"
             name="email"
-            required
             value={email}
             onChange={(e) => onChange(e)}
           />
@@ -88,7 +89,6 @@ const Register = ({ setAlert }) => {
             placeholder="Password"
             name="password"
             minLength="6"
-            required
             value={password}
             onChange={(e) => onChange(e)}
           />
@@ -99,7 +99,6 @@ const Register = ({ setAlert }) => {
             placeholder="Confirm Password"
             name="confirmPassword"
             minLength="6"
-            required
             value={confirmPassword}
             onChange={(e) => onChange(e)}
           />
@@ -115,6 +114,7 @@ const Register = ({ setAlert }) => {
 
 Register.propTypes = {
   setAlert: PropTypes.func.isRequired,
+  register: PropTypes.func.isRequired,
 };
 
-export default connect(null, { setAlert })(Register);
+export default connect(null, { setAlert, register })(Register);
