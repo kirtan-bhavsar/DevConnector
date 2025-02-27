@@ -58,7 +58,7 @@ router.post(
       console.log(password + "   " + userExists.password);
 
       if (!matchPassword) {
-        return res.status(400).json({ msg: "Invalid Password" });
+        return res.status(400).json({ errors: [{ msg: "Invalid Password" }] });
       }
 
       // return jsonwebtoken
