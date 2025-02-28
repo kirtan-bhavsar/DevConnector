@@ -58,7 +58,7 @@ const login =
     } catch (error) {
       const errors = error.response.data.errors;
 
-      errors.forEach((error) => dispatch(setAlert(error.msg, "danger")));
+      errors.forEach((error) => dispatch(setAlert(error.msg, "danger", 1000)));
 
       dispatch({
         type: LOGIN_FAILURE,
