@@ -1,0 +1,6 @@
+{
+    "mongoURI" : "mongodb+srv://kirtan:kirtan@devconnectorcluster.bymef.mongodb.net/?retryWrites=true&w=majority&appName=DevConnectorCluster",
+    "jwtSecret" : "kirtanbhavsar",
+    "githubClientSecret" : "5cfb10763f5f252b5045032adb160a0424937d2a",
+    "githubClientId" : "Ov23liMtQPe8AeOKaJxF"
+}
