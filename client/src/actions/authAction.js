@@ -7,6 +7,7 @@ import {
   LOGIN_FAILURE,
   LOGIN_SUCCESS,
   LOGOUT,
+  CLEAR_PROFILE,
 } from "./types.js";
 import { setAlert } from "./alertAction.js";
 import setAuthToken from "../utils/setAuthToken.js";
@@ -108,6 +109,9 @@ const register =
 const logout = () => (dispatch) => {
   dispatch({
     type: LOGOUT,
+  });
+  dispatch({
+    type: CLEAR_PROFILE,
   });
 };
 

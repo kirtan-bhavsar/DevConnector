@@ -22,7 +22,7 @@ router.get("/", auth, async (req, res) => {
 });
 
 // @api : POST /api/auth
-// @desc : Register user
+// @desc : Login user
 // @access : public
 router.post(
   "/",
@@ -55,7 +55,7 @@ router.post(
       }
 
       const matchPassword = await bcrypt.compare(password, userExists.password);
-      console.log(password + "   " + userExists.password);
+      // console.log(password + "   " + userExists.password);
 
       if (!matchPassword) {
         return res.status(400).json({ errors: [{ msg: "Invalid Password" }] });
