@@ -6,6 +6,7 @@ import { getCurrentProfile, createProfile } from "../../actions/profileAction";
 import { use } from "react";
 import { updateLocale } from "moment";
 import { Link } from "react-router-dom";
+import { setAlert } from "../../actions/alertAction";
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -52,6 +53,11 @@ const EditProfile = () => {
 
   const onSubmit = async (e) => {
     console.log(formData);
+
+    if (formData.status === "0") {
+      dispatch(setAlert("Please select a valid professional status", "danger"));
+      return;
+    }
 
     e.preventDefault();
 

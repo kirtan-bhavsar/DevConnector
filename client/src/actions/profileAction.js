@@ -1,5 +1,5 @@
 import axios from "axios";
-import { GET_PROFILE, PROFILE_ERROR } from "./types.js";
+import { GET_PROFILE, PROFILE_ERROR, UPDATE_PROFILE } from "./types.js";
 import { setAlert } from "../actions/alertAction.js";
 import { Link } from "react-router-dom";
 
@@ -59,6 +59,8 @@ const createProfile =
 
       return true;
     } catch (error) {
+      console.log(error + "--- error object in createProfile Action");
+
       const errors = error.response.data.errors;
 
       if (errors) {
@@ -78,4 +80,35 @@ const createProfile =
     }
   };
 
-export { getCurrentProfile, createProfile };
+const addExperience = (formData) => async (dispatch) => {
+  try {
+    const config = {
+      headers: {
+        "Content-type": "application/json",
+      },
+    };
+
+    const res = await axios.put("/api/profile/experience", formData, config);
+
+    dispatch({
+      type: UPDATE_PROFILE,
+      payload: res.data,
+    });
+  } catch (error) {
+    const errors = error.response.data.errors;
+
+    if (errors) {
+      errors.forEach((error) => dispatch(setAlert(error.msg, "danger")));
+    }
+
+    dispatch({
+      type: PROFILE_ERROR,
+      payload: {
+        msg: error.response.statusText,
+        status: error.response.status,
+      },
+    });
+  }
+};
+
+export { getCurrentProfile, createProfile, addExperience };
