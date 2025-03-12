@@ -1,11 +1,13 @@
-import React, { useState } from "react";
-import { useEffect } from "react";
-import { createProfile } from "../../actions/profileAction.js";
+import React, { useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { getCurrentProfile, createProfile } from "../../actions/profileAction";
+import { use } from "react";
+import { updateLocale } from "moment";
 import { Link } from "react-router-dom";
 
-const CreateProfile = () => {
+const EditProfile = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -24,6 +26,48 @@ const CreateProfile = () => {
     instagram: "",
   });
 
+  const { profile, loading } = useSelector((state) => state.profile);
+
+  const [displaySocialLinks, toggleSocialLinks] = useState(false);
+
+  useEffect(() => {
+    dispatch(getCurrentProfile());
+
+    setFormData({
+      company: loading || !profile.company ? "" : profile.company,
+      status: loading || !profile.status ? "" : profile.status,
+      website: loading || !profile.website ? "" : profile.website,
+      location: loading || !profile.location ? "" : profile.location,
+      githubusername:
+        loading || !profile.githubusername ? "" : profile.githubusername,
+      bio: loading || !profile.bio ? "" : profile.bio,
+      skills: loading || !profile.skills ? "" : profile.skills.join(","),
+      linkedin: loading || !profile.social ? "" : profile.social.linkedin,
+      youtube: loading || !profile.social ? "" : profile.social.youtube,
+      facebook: loading || !profile.social ? "" : profile.social.facebook,
+      instagram: loading || !profile.social ? "" : profile.social.instagram,
+      twitter: loading || !profile.social ? "" : profile.social.twitter,
+    });
+  }, []);
+
+  const onSubmit = async (e) => {
+    console.log(formData);
+
+    e.preventDefault();
+
+    const success = await dispatch(createProfile(formData, true));
+
+    if (success) {
+      navigate("/dashboard");
+    }
+  };
+
+  const onChange = (e) =>
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
+
   const {
     status,
     company,
@@ -39,33 +83,16 @@ const CreateProfile = () => {
     instagram,
   } = formData;
 
-  const [displaySocialLinks, toggleSocialLinks] = useState(false);
-
-  const onChange = (e) =>
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
-
-  const onSubmit = async (e) => {
-    e.preventDefault();
-
-    const success = await dispatch(createProfile(formData));
-
-    if (success) {
-      navigate("/dashboard");
-    }
-  };
-
   return (
     <>
-      <h1 className="large text-primary">Create Your Profile</h1>
+      <h1 className="large text-primary">Update Your Profile</h1>
       <p className="lead">
         <i className="fas fa-user"></i> Let's get some information to make your
         profile stand out
       </p>
       <small>* = required field</small>
       <form className="form" onSubmit={(e) => onSubmit(e)}>
+        {/* <form className="form"> */}
         <div className="form-group">
           <select name="status" value={status} onChange={(e) => onChange(e)}>
             <option value="0">* Select Professional Status</option>
@@ -152,7 +179,6 @@ const CreateProfile = () => {
           ></textarea>
           <small className="form-text">Tell us a little about yourself</small>
         </div>
-
         <div className="my-2">
           <button
             onClick={() => toggleSocialLinks(!displaySocialLinks)}
@@ -163,7 +189,6 @@ const CreateProfile = () => {
           </button>
           <span>Optional</span>
         </div>
-
         {displaySocialLinks && (
           <>
             <div className="form-group social-input">
@@ -222,8 +247,7 @@ const CreateProfile = () => {
             </div>
           </>
         )}
-
-        <input type="submit" className="btn btn-primary my-1" />
+        <input type="Submit" className="btn btn-primary my-1" value="Update" />
         <Link className="btn btn-light my-1" to="/dashboard">
           Go Back
         </Link>
@@ -232,4 +256,4 @@ const CreateProfile = () => {
   );
 };
 
-export default CreateProfile;
+export default EditProfile;

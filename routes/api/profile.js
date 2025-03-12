@@ -100,7 +100,7 @@ router.post(
       res.status(200).json(profile);
     } catch (error) {
       return res.status(500).json({
-        msg: "Internal Server Error",
+        msg: "Internal Server Error from route file",
       });
     }
   }

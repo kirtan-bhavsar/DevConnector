@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { getCurrentProfile } from "../../actions/profileAction.js";
 import Spinner from "../../spinner/Spinner.js";
 import { Link } from "react-router-dom";
+import DashboardAction from "./DashboardActions.js";
 
 const Dashboard = () => {
   const { user } = useSelector((state) => state.auth);
@@ -25,7 +26,7 @@ const Dashboard = () => {
         <i className="fas fa-user"></i> Welcome {user && user.name}
       </p>
       {profile !== null ? (
-        <>has</>
+        <DashboardAction />
       ) : (
         <>
           <p>You do not have any profile to display. Please add to showcase</p>{" "}

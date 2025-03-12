@@ -1,6 +1,7 @@
 import axios from "axios";
 import { GET_PROFILE, PROFILE_ERROR } from "./types.js";
 import { setAlert } from "../actions/alertAction.js";
+import { Link } from "react-router-dom";
 
 const getCurrentProfile = () => async (dispatch) => {
   try {
@@ -47,14 +48,14 @@ const createProfile =
 
       const res = await axios.post("/api/profile", formData, config);
 
+      dispatch(
+        setAlert(edit ? "Profile updated" : "Profile created", "success")
+      );
+
       dispatch({
         type: GET_PROFILE,
         payload: res.data,
       });
-
-      dispatch(
-        setAlert(edit ? "Profile updated" : "Profile created", "success")
-      );
 
       return true;
     } catch (error) {
